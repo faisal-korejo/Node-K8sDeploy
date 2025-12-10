@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fzk-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fzk
+  template:
+    metadata:
+      labels:
+        app: fzk
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-vol
+              mountPath: /data/db
+      volumes:
+        - name: mongo-vol
+          persistentVolumeClaim:
+            claimName: host-pvc
+            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-fzk
+spec:
+  type: NodePort
+  selector:
+    app: fzk
+  ports:
+    - name: mongodb
+      port: 27017
+      targetPort: 27017
+
+
+
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   # Unique key of the Deployment instance
+#   name: fzk-app
+# spec:
+#   # 3 Pods should exist at all times.
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: fzk
+#   template:
+#     metadata:
+#       labels:
+#         # Apply this label to pods and default
+#         # the Deployment label selector to this value
+#         app: fzk
+#     spec:
+#       containers:
+#       - name: mongodb
+#         image: mongo:latest
+
+
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   # Unique key of the Service instance
+#   name: service-fzk
+# spec: 
+#   type: NodePort
+#   ports:
+#     # Accept traffic sent to port 80
+#     - name: tcp
+#       port: 27017
+#       targetPort: 27017
+#   selector:
+#     # Loadbalance traffic across Pods matching
+#     # this label selector
+#     app: fzk
+#   # Create an HA proxy in the cloud provider
+#   # with an External IP address - *Only supported
+#   # by some cloud providers*
+  
+#   # type: LoadBalancer
